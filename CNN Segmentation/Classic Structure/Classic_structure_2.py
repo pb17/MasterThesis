@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Classic CNN Implementation 
 """
@@ -65,7 +66,7 @@ X_val=X_train_n[int(n_patches_per_img*(1-ratio_val)*n_imgs):,:,:,:]
 Y_val=Y_train[int(n_patches_per_img*(1-ratio_val)*n_imgs):]
 Val_set=(X_val,Y_val)
 # Get Net
-model=net.get_ClassicNet(1,patch_size)
+model=net.get_ClassicNet2(1,patch_size)
 model.summary()
 # Tranning Model
 early_stopping = EarlyStopping(monitor='val_loss', patience=100)
@@ -79,10 +80,10 @@ mf.ModelStats(history)
 # Save
 # serialize model to JSON
 model_json = model.to_json()
-with open("model_Classic_Net.json", "w") as json_file:
+with open("model_Classic_Net_2.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("model_Classic_Net.h5")
+model.save_weights("model_Classic_Net_2.h5")
 print("Saved model to disk")
 print('Testing model')
 print('...')
