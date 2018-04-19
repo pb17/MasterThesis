@@ -6,6 +6,7 @@ CNN - as a segmentation approach:
   - Liskowski et al [1] No-pool Implementation. 
   - Liskowski et al [1] 3x3 No-pool Structure Prediction.
   - Classic CNN Structure.
+  
 CNN - as a feature extractor:
   - Wang et al [2] as feature extractor and Random Forest Classifier & diferent emsemble methods.
   - Wang et al [2] as feature extractor and SVM Classifier & diferent emsemble methods.
