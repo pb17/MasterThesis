@@ -24,9 +24,9 @@ Datasets:
   - Flipping horizontally or vertically.
   - Gamma correction of Saturation and Value.  
   
-  
-  Contributors:
-  - Ricardo Araujo (INESC - TEC), Msc
+
+Contributors:
+  - Ricardo Araujo (INESC - TEC) - Msc, Phd student
   - MIT´s https://github.com/orobix/retina-unet
   
   [1] - Liskowski P, Krawiec K. Segmenting retinal blood vessels with deep neural networks [J]. IEEE Trans Med Imaging. 2016;35(11):2369–80.
