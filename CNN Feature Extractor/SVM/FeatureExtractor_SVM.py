@@ -1,37 +1,60 @@
 # -*- coding: utf-8 -*-
 """
-'CNN as Feature extractor - Random Forests'
+@author: Samsung
 """
+# Keras
 from keras import regularizers
 from keras.optimizers import Adam, SGD, Adagrad
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Activation, Input
-from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Conv2D, MaxPooling2D,Reshape
 from keras.layers.normalization import BatchNormalization
 from keras.utils import np_utils
 from keras.callbacks import EarlyStopping
 from keras.utils import plot_model
-from keras.models import model_from_json
+#scikit learn
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import jaccard_similarity_score
+from sklearn.metrics import f1_score
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import svm 
 import sys
 import os
 sys.path.insert(0, r'C:\Users\Samsung\Desktop\Retinal Blod Vessel Segementation\Functions')
+# Skimage
+from scipy.ndimage.interpolation import rotate
+from skimage.segmentation import slic
+from skimage.segmentation import mark_boundaries
+from skimage.util import img_as_float
+from skimage import io
+from sklearn.feature_extraction import image
 from PIL import Image
 import numpy as np
-import fuctionsrep as mf
-import extract_patches as ex
-import nets as net 
-from sklearn.metrics import roc_curve
-from sklearn.metrics import roc_auc_score
 from matplotlib import pyplot as plt
+import myfunctions as mf
+import extract_patches as ex
 import random
+import xlsxwriter
+import pandas as pd
+seed = 7
 import tensorflow as tf
 sess=tf.Session(config=tf.ConfigProto(log_device_placement=True))
-from keras import backend as K
-K.tensorflow_backend._get_available_gpus()
-# TRAIN MODEL
-print('CNN as Feature extractor - Random Forests')
+config = tf.ConfigProto(allow_soft_placement=True)
+config.gpu_options.allow_growth = True
+print('Runnig on GPU')
+print('training model')
 print('...')
+n_patches_per_img = 1
+patch_size = 24
+class_ratio = 0.5
+n_epochs = 1
+ratio_val = 0.1
+n_imgs = 20
+batch_size = 32
+
 # parameters controlling the training procedure
 n_patches_per_img = 10
 patch_size = 25
@@ -139,24 +162,18 @@ for i in range(1):
     inclass03.append(activations03)
     
     
-    
-    
-    
-
-'''
 inclass01=np.asarray(inclass01)
 inclass02=np.asarray(inclass02)
 inclass03=np.asarray(inclass03)
-#Classifer 01
-clf01 = RandomForestClassifier(n_estimators=100,criterion='gini', max_features=4,class_weight='balanced' )
-clf01.fit(inclass01, Y_train_final)
-# Classifer 02
-clf02 = RandomForestClassifier(n_estimators=100,criterion='gini', max_features=4,class_weight='balanced' )
-clf02.fit(inclass02, Y_train_final)
-# Classifer 03
-clf03 = RandomForestClassifier(n_estimators=100,criterion='gini', max_features=4,class_weight='balanced' )
-clf03.fit(inclass03, Y_train_final)
-#emsemble methodos 
+# Classificador 01
+clf01 = svm.SVC(C=1.0, cache_size=200, coef0=0.0, degree=3, epsilon=0.1, gamma='auto',  kernel='rbf')
+clf01.fit(inclass01,Y_train_final)
+# Classificador 02
+clf02 = svm.SVC(C=1.0, cache_size=200, coef0=0.0, degree=3, epsilon=0.1, gamma='auto',  kernel='rbf')
+clf02.fit(inclass02,Y_train_final)
+# Classificador 03
+clf03 = svm.SVC(C=1.0, cache_size=200, coef0=0.0, degree=3, epsilon=0.1, gamma='auto',  kernel='rbf')
+clf03.fit(inclass01,Y_train_final)
 n_imgs_test=1
 for i in range(n_imgs_test):    
     print("Evaluation on test image ",i, "...")
@@ -174,7 +191,7 @@ for i in range(n_imgs_test):
       predictions01=clf01.predict(X_test[0,0,:,:])
       predictions02=clf02.predict(X_test)
       predictions03=clf03.predict(X_test)
-      
+    #Emsemble  
     predictions
     out_img=mf.Image_reconstruct(my_pos_set, my_neg_set, prediction, 'DRIVE','prob')
     img_out_viz=np.reshape(out_img,(out_img.shape[0],out_img.shape[1],1))
@@ -184,4 +201,9 @@ for i in range(n_imgs_test):
     pred_clas[prediction <0.49]=0
     fpr, tpr, thresholds = roc_curve(Y_test,pred_clas)
     mf.get_metrics(Y_test,pred_clas, 0.5, fpr, tpr, thresholds)
-'''    
+ 
+
+
+
+
+

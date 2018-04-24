@@ -66,7 +66,7 @@ def get_unet(n_ch,patch_height,patch_width):
    return model
 def get_ClassicNet(n_ch,patch_size):
     model = Sequential()
-    model.add(Conv2D(48,6,data_format = "channels_first",activation=None,
+    model.add(Conv2D(32,4,data_format = "channels_first",activation=None,
                                                       padding='same',
                                                       input_shape=(1,patch_size,patch_size),
                                                       kernel_initializer='random_normal',
@@ -75,7 +75,7 @@ def get_ClassicNet(n_ch,patch_size):
                                                       bias_regularizer = regularizers.l2(1e-5),name='C01'))     
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=None,  name='MP01',data_format = "channels_first"))
-    model.add(Conv2D(48,5,data_format = "channels_first",activation=None,
+    model.add(Conv2D(32,4,data_format = "channels_first",activation=None,
                                                       padding='same',
                                                       kernel_initializer='random_normal',
                                                       bias_initializer='zeros',
@@ -84,19 +84,27 @@ def get_ClassicNet(n_ch,patch_size):
 
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=None,  name='MP02',data_format = "channels_first"))
-    model.add(Conv2D(48,5,data_format = "channels_first",activation=None,
+    model.add(Conv2D(64,4,data_format = "channels_first",activation=None,
                                                       padding='same',
                                                       kernel_initializer='random_normal',
                                                       bias_initializer='zeros',
                                                       kernel_regularizer=regularizers.l2(1e-5),
                                                       bias_regularizer = regularizers.l2(1e-5),name='C03'))
+    model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=None,  name='MP03',data_format = "channels_first"))
-    model.add(Conv2D(48,5,data_format = "channels_first",activation=None,
+    model.add(Conv2D(64,4,data_format = "channels_first",activation=None,
                                                       padding='same',
                                                       kernel_initializer='random_normal',
                                                       bias_initializer='zeros',
                                                       kernel_regularizer=regularizers.l2(1e-5),
                                                       bias_regularizer = regularizers.l2(1e-5),name='C04'))
+    model.add(Activation('relu'))
+    model.add(Conv2D(128,4,data_format = "channels_first",activation=None,
+                                                      padding='same',
+                                                      kernel_initializer='random_normal',
+                                                      bias_initializer='zeros',
+                                                      kernel_regularizer=regularizers.l2(1e-5),
+                                                      bias_regularizer = regularizers.l2(1e-5),name='C05'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=None,  name='MP04',data_format = "channels_first"))
     model.add(Flatten())
     model.add(Dense(100, kernel_initializer='random_normal', 
@@ -189,16 +197,14 @@ def get_LiskowskiSP(patch_height,patch_width):
                                                       kernel_regularizer=regularizers.l2(1e-5),
                                                       bias_regularizer = regularizers.l2(1e-5),name='C01'))
     model.add(Activation('relu'))
-    model.add(BatchNormalization())
     model.add(Dropout(0.2))
     model.add(Conv2D(64,3,data_format = "channels_first",
                                                       padding='valid',
                                                       kernel_initializer='random_normal',
                                                       bias_initializer='zeros',
                                                       kernel_regularizer=regularizers.l2(1e-5),
-                                                      bias_regularizer = regularizers.l2(1e-5),   name='C03'))
+                                                      bias_regularizer = regularizers.l2(1e-5),   name='C02'))
     model.add(Activation('relu'))
-    model.add(BatchNormalization())
     model.add(Conv2D(128,3,data_format = "channels_first",
                                                       padding='valid',
                                                       kernel_initializer='random_normal',
@@ -206,40 +212,32 @@ def get_LiskowskiSP(patch_height,patch_width):
                                                       kernel_regularizer=regularizers.l2(1e-5),
                                                       bias_regularizer = regularizers.l2(1e-5),   name='C03'))
     model.add(Activation('relu'))
-    model.add(Dropout(0.2))
-    model.add(BatchNormalization())
     model.add(Conv2D(128,3,data_format = "channels_first",
                                                       padding='valid',
                                                       kernel_initializer='random_normal',
                                                       bias_initializer='zeros',
                                                       kernel_regularizer=regularizers.l2(1e-5),
-                                                      bias_regularizer = regularizers.l2(1e-5),   name='C03'))
+                                                      bias_regularizer = regularizers.l2(1e-5),   name='C04'))
     model.add(Activation('relu'))
-    model.add(Dropout(0.2))
-    model.add(BatchNormalization())
     model.add(Conv2D(128,3,data_format = "channels_first",
                                                       padding='valid',
                                                       kernel_initializer='random_normal',
                                                       bias_initializer='zeros',
                                                       kernel_regularizer=regularizers.l2(1e-5),
-                                                      bias_regularizer = regularizers.l2(1e-5),   name='C03'))
+                                                      bias_regularizer = regularizers.l2(1e-5),   name='C05'))
     model.add(Activation('relu'))
-    model.add(Dropout(0.2))
-    model.add(BatchNormalization())
     model.add(Flatten())
     model.add(Dense(512, kernel_initializer='random_normal', 
                                                 bias_initializer='zeros',
                                                 kernel_regularizer=regularizers.l2(1e-5),
                                                 bias_regularizer = regularizers.l2(1e-5)))
+    model.add(Activation('relu'))
     model.add(Dense(512, kernel_initializer='random_normal', 
                                                 bias_initializer='zeros',
                                                 kernel_regularizer=regularizers.l2(1e-5),
                                                 bias_regularizer = regularizers.l2(1e-5)))
-    
-    model.add(Dense(1, kernel_initializer='random_normal', 
-                                                bias_initializer='zeros',
-                                                kernel_regularizer=regularizers.l2(1e-5),
-                                                bias_regularizer = regularizers.l2(1e-5)))
+    model.add(Activation('relu'))
+    model.add(Dense(9, activation='softmax'))
 
 
     model.compile(loss='binary_crossentropy',
@@ -340,6 +338,49 @@ def get_unet02(n_ch,patch_height,patch_width):
     model.add(Activation('relu'))                     
     
     return model
-def dummy(a):
-    print("testesss")
-    return None
+def get_ClassicNet2(n_ch,patch_size):
+    model = Sequential()
+    model.add(Conv2D(16,4,data_format = "channels_first",activation=None,
+                                                      padding='same',
+                                                      input_shape=(1,patch_size,patch_size),
+                                                      kernel_initializer='random_normal',
+                                                      bias_initializer='zeros',
+                                                      kernel_regularizer=regularizers.l2(1e-5),
+                                                      bias_regularizer = regularizers.l2(1e-5),name='C01'))     
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=None,  name='MP01',data_format = "channels_first"))
+    model.add(Conv2D(32,4,data_format = "channels_first",activation=None,
+                                                      padding='same',
+                                                      kernel_initializer='random_normal',
+                                                      bias_initializer='zeros',
+                                                      kernel_regularizer=regularizers.l2(1e-5),
+                                                      bias_regularizer = regularizers.l2(1e-5),name='C02'))
+
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=None,  name='MP02',data_format = "channels_first"))
+    model.add(Conv2D(64,4,data_format = "channels_first",activation=None,
+                                                      padding='same',
+                                                      kernel_initializer='random_normal',
+                                                      bias_initializer='zeros',
+                                                      kernel_regularizer=regularizers.l2(1e-5),
+                                                      bias_regularizer = regularizers.l2(1e-5),name='C03'))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=None,  name='MP04',data_format = "channels_first"))
+    model.add(Flatten())
+    model.add(Dense(128, kernel_initializer='random_normal', 
+                                                bias_initializer='zeros',
+                                                kernel_regularizer=regularizers.l2(1e-5),
+                                                bias_regularizer = regularizers.l2(1e-5)))
+    model.add(Activation('relu'))
+    model.add(Dense(64, kernel_initializer='random_normal', 
+                                                bias_initializer='zeros',
+                                                kernel_regularizer=regularizers.l2(1e-5),
+                                                bias_regularizer = regularizers.l2(1e-5)))
+    model.add(Activation('relu'))
+    model.add(Dense(1, kernel_initializer='random_normal', 
+                                                bias_initializer='zeros',
+                                                kernel_regularizer=regularizers.l2(1e-5)))
+    model.compile(loss='binary_crossentropy',
+    optimizer=Adam(lr=1e-3, beta_1=0.9, beta_2=0.999, epsilon=1e-5, decay=0),
+    metrics=['accuracy'])      
+    return model

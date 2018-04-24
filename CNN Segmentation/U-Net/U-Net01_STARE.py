@@ -35,8 +35,8 @@ n_epochs = 150
 ratio_val = 0.25
 batch_size = 32
 # Training patches
-X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetDRIVEPRE()
-#X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetSTAREPRE()
+#X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetDRIVEPRE()
+X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetSTAREPRE()
 img_list=[]
 gt_list=[]
 mask_list=[]
@@ -44,7 +44,7 @@ for i in range(n_imgs):
     img_path = X_train_folder + os.listdir(X_train_folder)[i]
     gt_path  = Y_train_folder + os.listdir(Y_train_folder)[i]
     val_path = v_train_folder + os.listdir(v_train_folder)[i]
-    img, gt, val_mask = mf.getImageData (img_path, gt_path, val_path)
+    img, gt, val_mask = mf.getImageDataGreen (img_path, gt_path, val_path)
     img_list.append(img)
     gt_list.append(gt)
     mask_list.append(val_mask)
@@ -67,10 +67,10 @@ mf.ModelStats(history)
 
 # Save Model
 model_json = model.to_json()
-with open("modelU-Net.json", "w") as json_file:
+with open("modelU-Net_STARE.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("modelU-Net.h5")
+model.save_weights("modelU-Net_STARE.h5")
 print("Saved model to disk")
 
 print('Testing model')

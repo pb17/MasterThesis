@@ -67,10 +67,10 @@ mf.ModelStats(history)
 
 # Save Model
 model_json = model.to_json()
-with open("modelU-Net.json", "w") as json_file:
+with open("modelU-Net_DRIVE.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("modelU-Net.h5")
+model.save_weights("modelU-Net_DRIVE.h5")
 print("Saved model to disk")
 
 print('Testing model')
