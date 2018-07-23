@@ -38,23 +38,23 @@ print('...')
 # parameters controlling the training procedure
 n_patches_per_img = 10500
 patch_size = 17
-class_ratio = 0.25
+class_ratio = 0.30
 n_epochs = 150
 ratio_val = 0.25
 batch_size = 32
 # Training patches
-#X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetSTAREPRE()
-X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetDRIVE()
-X_train  = np.ndarray([n_patches_per_img*n_imgs,patch_size,patch_size,3])
+X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetSTAREPRE()
+#X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetDRIVEPRE()
+X_train  = np.ndarray([n_patches_per_img*n_imgs,patch_size,patch_size])
 Y_train = np.ndarray([n_patches_per_img*n_imgs])
 SP=np.ndarray([9, Y_train.shape[0]])
-for i in range(1):
+for i in range(15):
 
     img_path = X_train_folder + os.listdir(X_train_folder)[i]
     gt_path  = Y_train_folder + os.listdir(Y_train_folder)[i]
     val_path = v_train_folder + os.listdir(v_train_folder)[i]    
-    img, gt, val_mask = mf.getImageData (img_path, gt_path, val_path)
-    X_train[i*n_patches_per_img:(i+1)*n_patches_per_img,:,:,:], Y_train[i*n_patches_per_img:(i+1)*n_patches_per_img], SP[:,i*n_patches_per_img:(i+1)*n_patches_per_img] = mf.getTrainPatchesLisk(img, gt, val_mask, n_patches_per_img, patch_size, class_ratio)
+    img, gt, val_mask = mf.getImageDataGreen (img_path, gt_path, val_path)
+    X_train[i*n_patches_per_img:(i+1)*n_patches_per_img,:,:], Y_train[i*n_patches_per_img:(i+1)*n_patches_per_img], SP[:,i*n_patches_per_img:(i+1)*n_patches_per_img] = mf.getTrainPatchesLisk(img, gt, val_mask, n_patches_per_img, patch_size, class_ratio)
 
 X_train = X_train.astype('float32')
 #X_train_n =np.empty(X_train.shape)
@@ -92,18 +92,18 @@ mf.ModelStats(history)
 # Save
 # serialize model to JSON
 model_json = model.to_json()
-with open("model_Liskowski_StructPrediction.json", "w") as json_file:
+with open("model_Liskowski_StructPrediction_STARE.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("model_StructPrediction.h5")
-model.save("Liskowski_SP_complet.h5")
+model.save_weights("model_StructPrediction_STARE.h5")
+model.save("Liskowski_SP_complet_STARE.h5")
 print("Saved model to disk")
 print('Testing model')
 print('...')
 X_test = []
 Y_test = []
-#n_imgs_test=10
-n_imgs_test=20
+n_imgs_test=5
+#n_imgs_test=20
 for i in range(n_imgs_test):    
     print("Evaluation on test image ",i, "...")
     # Get Images
@@ -111,21 +111,23 @@ for i in range(n_imgs_test):
     gt_path  = Y_test_folder + os.listdir(Y_test_folder)[i]
     val_path = v_test_folder + os.listdir(v_test_folder)[i]
 #    # Get Data and Patches
-    img, gt, val_mask = mf.getImageData (img_path, gt_path, val_path)
+    img, gt, val_mask = mf.getImageDataGreen (img_path, gt_path, val_path)
 #    X_test, Y_test,my_pos_set,my_neg_set = mf.getTestPatches(img, gt, val_mask, patch_size)
+    val_mask=val_mask*255
     X_test, Y_test,my_pos_set, my_neg_set  = mf.getTestPatches(img, gt, val_mask, patch_size)
     X_test = X_test.astype('float32')
     X_test = X_test.reshape(X_test.shape[0], 1, patch_size, patch_size)
     prediction=model.predict(X_test,batch_size=32, verbose=1)
 #   scores = model.evaluate(X_test, Y_test, verbose=1)
-    img_out_viz=mf.Img_reconstruct_SP(my_pos_set, my_neg_set,'DRIVE', prediction)
+    img_out_viz=mf.Img_reconstruct_SP(my_pos_set, my_neg_set,'STARE', prediction)
     img_out_viz=np.reshape(img_out_viz,(img_out_viz.shape[0],img_out_viz.shape[1],1))
     mf.visualize(img_out_viz,"Probmap_%s.png" % i)
-    pred_clas=np.empty(prediction.shape[0])
+    pred_clas=np.empty([prediction.shape[0]])
     pred_mean= np.mean(prediction, axis=1)
     pred_clas[pred_mean >=0.50]=1
     pred_clas[pred_mean <0.50]=0
     fpr, tpr, thresholds = roc_curve(Y_test,pred_clas)
     mf.get_metrics(Y_test,pred_clas, 0.50, fpr, tpr, thresholds)
-    np.save('Y_test_%s' % i, Y_test)
-    np.save('prediction_%s' % i, prediction)
+    np.save('Y_test_%s_STARE' % i, Y_test)
+    np.save('prediction_%s_STARE' % i, prediction)
+    

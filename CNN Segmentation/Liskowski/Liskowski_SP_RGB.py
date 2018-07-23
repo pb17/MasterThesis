@@ -38,17 +38,17 @@ print('...')
 # parameters controlling the training procedure
 n_patches_per_img = 10500
 patch_size = 17
-class_ratio = 0.25
-n_epochs = 150
+class_ratio = 0.50
+n_epochs = 100
 ratio_val = 0.25
 batch_size = 32
 # Training patches
-#X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetSTAREPRE()
+
 X_train_folder,Y_train_folder,v_train_folder,X_test_folder,Y_test_folder,v_test_folder, n_imgs,img_width, img_heigth1=mf.GetDRIVE()
 X_train  = np.ndarray([n_patches_per_img*n_imgs,patch_size,patch_size,3])
 Y_train = np.ndarray([n_patches_per_img*n_imgs])
 SP=np.ndarray([9, Y_train.shape[0]])
-for i in range(1):
+for i in range(n_imgs):
 
     img_path = X_train_folder + os.listdir(X_train_folder)[i]
     gt_path  = Y_train_folder + os.listdir(Y_train_folder)[i]
@@ -61,7 +61,7 @@ X_train = X_train.astype('float32')
 #for i in range(X_train.shape[0]):
 ##   X_train_n[i,:,:] = preprocessing.scale(X_train[i,:,:])
 #    X_train_n[i,:,:] =X_train[i]/np.max(np.abs(X_train[i]))
-X_train_n = X_train.reshape(X_train.shape[0], 1, patch_size, patch_size)
+X_train_n = X_train.reshape(X_train.shape[0], 3, patch_size, patch_size)
 X_train_final=X_train_n[0:int(n_patches_per_img*(1-ratio_val)*n_imgs),:,:,:]
 Y_train_final=SP[:,0:int(n_patches_per_img*(1-ratio_val)*n_imgs)]
 X_val=X_train_n[int(n_patches_per_img*(1-ratio_val)*n_imgs):,:,:,:]
@@ -115,7 +115,7 @@ for i in range(n_imgs_test):
 #    X_test, Y_test,my_pos_set,my_neg_set = mf.getTestPatches(img, gt, val_mask, patch_size)
     X_test, Y_test,my_pos_set, my_neg_set  = mf.getTestPatches(img, gt, val_mask, patch_size)
     X_test = X_test.astype('float32')
-    X_test = X_test.reshape(X_test.shape[0], 1, patch_size, patch_size)
+    X_test = X_test.reshape(X_test.shape[0], 3, patch_size, patch_size)
     prediction=model.predict(X_test,batch_size=32, verbose=1)
 #   scores = model.evaluate(X_test, Y_test, verbose=1)
     img_out_viz=mf.Img_reconstruct_SP(my_pos_set, my_neg_set,'DRIVE', prediction)
@@ -125,7 +125,6 @@ for i in range(n_imgs_test):
     pred_mean= np.mean(prediction, axis=1)
     pred_clas[pred_mean >=0.50]=1
     pred_clas[pred_mean <0.50]=0
-    fpr, tpr, thresholds = roc_curve(Y_test,pred_clas)
+    fpr, tpr, thresholds = roc_curve(Y_test,pred_mean)
     mf.get_metrics(Y_test,pred_clas, 0.50, fpr, tpr, thresholds)
-    np.save('Y_test_%s' % i, Y_test)
-    np.save('prediction_%s' % i, prediction)
+    np.save('prediction_RGB_Balanced_%s' % i, prediction)
